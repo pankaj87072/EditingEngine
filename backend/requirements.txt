@@ -1,0 +1,33 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# AutoVideoGen — Python dependencies
+# Install: pip install -r requirements.txt
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Web framework ──────────────────────────────────────────────────────────────
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+python-multipart==0.0.9         # Required for FastAPI Form + File uploads
+
+# ── Data validation ────────────────────────────────────────────────────────────
+pydantic==2.7.1
+pydantic-settings==2.2.1
+
+# ── Task queue ─────────────────────────────────────────────────────────────────
+celery==5.3.6
+redis==5.0.4                    # Python redis client (Celery broker + backend)
+
+# ── TTS providers ─────────────────────────────────────────────────────────────
+gtts==2.5.1                     # Free offline-friendly Google TTS fallback
+# Uncomment for production Google Cloud TTS:
+# google-cloud-texttospeech==2.16.3
+# Uncomment for ElevenLabs:
+# elevenlabs==1.2.2
+
+# ── Utilities ──────────────────────────────────────────────────────────────────
+httpx==0.27.0                   # Async HTTP client (used by some TTS SDKs)
+python-dotenv==1.0.1            # .env file loader
+
+# ── Dev / testing ──────────────────────────────────────────────────────────────
+pytest==8.2.0
+pytest-asyncio==0.23.6
+httpx==0.27.0                   # Also used for TestClient

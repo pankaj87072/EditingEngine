@@ -1,0 +1,80 @@
+version: "3.9"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AutoVideoGen — Docker Compose
+# Brings up: Redis, FastAPI server, Celery worker
+#
+# Usage:
+#   docker compose up --build
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── Redis broker + result backend ──────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: autovideogen-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── FastAPI API server ──────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: autovideogen-api
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Celery worker ────────────────────────────────────────────────────────────
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: autovideogen-worker
+    command: >
+      celery -A workers.celery_app worker
+      --loglevel=info
+      --queues=video
+      --concurrency=2
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  redis_data:

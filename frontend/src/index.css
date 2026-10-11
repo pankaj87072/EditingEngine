@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 14 15 20;
+  --surface: 21 22 29;
+  --raised: 28 29 38;
+  --line: 44 46 60;
+  --ink: 236 237 243;
+  --mute: 139 142 160;
+  --violet: 139 107 255;
+  --azure: 76 141 255;
+  --ok: 61 214 160;
+  --warn: 255 190 92;
+  --bad: 255 107 122;
+  color-scheme: dark;
+}
+
+html { background: rgb(var(--bg)); }
+body {
+  @apply bg-bg font-sans text-ink antialiased;
+  min-height: 100dvh;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+h1, h2, h3 { @apply font-display tracking-tight; }
+
+:focus-visible { outline: 2px solid rgb(var(--azure)); outline-offset: 2px; border-radius: 6px; }
+
+dialog::backdrop { background: rgb(5 5 9 / 0.7); backdrop-filter: blur(3px); }
+dialog { color: inherit; }
+
+input[type='range'] { accent-color: rgb(var(--violet)); }
+
+@layer components {
+  .card { @apply rounded-2xl border border-line bg-surface; }
+  .field {
+    @apply w-full rounded-xl border border-line bg-bg px-4 py-3 text-ink placeholder:text-mute/70
+      transition-colors hover:border-mute/50 focus:border-violet focus:outline-none focus:ring-2 focus:ring-violet/30;
+  }
+  .brand-gradient { background-image: linear-gradient(135deg, rgb(var(--violet)), rgb(var(--azure))); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
